@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "LinkHub",
+  "description": "Organize your useful websites in folders.",
+  "version": "1.0.0",
+
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "LinkHub"
+  },
+
+  "permissions": ["storage", "tabs"],
+
+  "icons": {
+    "16": "icons/link-hub-logo.png",
+    "48": "icons/link-hub-logo.png",
+    "128": "icons/link-hub-logo.png"
+  }
+}

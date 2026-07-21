@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@layer base {
+  body {
+    @apply bg-[#F6F6F7];
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* Use this for extension */
+/* html {
+  width: 500px;
+  height: 500px;
+} */
+
+html {
+  width: 100%;
+  height: 100%;
+}
+
+@theme inline {
+  --color-primary: #2563eb;
+  --color-secondary: var(--color-amber-50);
+  --color-primary-light: #dbe1ff;
+}
