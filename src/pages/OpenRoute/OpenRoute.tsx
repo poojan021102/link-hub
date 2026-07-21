@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FaFolder } from 'react-icons/fa';
 import { IoIosArrowBack, IoMdHome } from 'react-icons/io';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -10,7 +10,7 @@ import Search from './components/Search';
 import URL from './components/URL';
 
 const OpenRoute = () => {
-  const { currentOpenedLink, getById } = useLinkHubData();
+  const { currentOpenedLink, getById, isMutating } = useLinkHubData();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchParam] = useSearchParams();
   const [currentEntry, setCurrentEntry] = useState<Entry | null>();
@@ -21,7 +21,6 @@ const OpenRoute = () => {
     setIsLoading(true);
     setCurrentEntry(null);
     if (currentFetchedEntry.type === EntryType.URL) {
-      // TODO: In future we have to change it and allow open the URL page as well
       navigate(`/${currentFetchedEntry.parentId}`);
     } else {
       setCurrentEntry(currentFetchedEntry);
@@ -29,9 +28,26 @@ const OpenRoute = () => {
     setIsLoading(false);
   }, [searchParam, currentOpenedLink]);
 
+  const breadcrumbEntries = useMemo(() => {
+    const segments: Array<{ id: string; name: string }> = [];
+    let currentId = currentEntry?.id ?? currentOpenedLink ?? 'root';
+
+    while (currentId) {
+      const entry = getById(currentId);
+      if (!entry) {
+        break;
+      }
+
+      segments.unshift({ id: entry.id, name: entry.name });
+      currentId = entry.parentId ?? '';
+    }
+
+    return segments;
+  }, [currentEntry?.id, currentOpenedLink, getById]);
+
   const renderActionButtons = () => {
     return (
-      <div className="mt-4 mb-4 flex flex-wrap gap-2">
+      <div className="mb-4 mt-4 flex flex-wrap gap-2">
         <button
           disabled={!currentEntry?.parentId}
           onClick={() => navigate(`/${currentEntry?.parentId}`)}
@@ -55,21 +71,33 @@ const OpenRoute = () => {
   const renderPage = () => {
     return (
       <div className="mt-2">
-        {/* Action Buttons */}
         {renderActionButtons()}
-        {/* Main Content */}
-        <div className="bg-primary-light text-primary mt-2 flex cursor-pointer flex-wrap items-center gap-2 rounded-md p-3">
-          <FaFolder size="20" />
-          {currentEntry?.name}
+        <div className="mt-2 rounded-md border border-[#e0e0ec] bg-[#f8fafc] p-3">
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[#64748b]">Current folder</div>
+          <div className="bg-primary-light text-primary flex flex-wrap items-center gap-2 rounded-md p-3">
+            <FaFolder size="20" />
+            <div className="flex flex-wrap items-center gap-1">
+              {breadcrumbEntries.map((entry, index) => (
+                <button
+                  key={entry.id}
+                  type="button"
+                  onClick={() => navigate(`/${entry.id}`)}
+                  className="rounded-sm px-1 py-0.5 text-left text-sm font-medium hover:bg-white/70"
+                >
+                  {index > 0 ? <span className="mr-1 text-[#64748b]">/</span> : null}
+                  {entry.name}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="mt-2 ml-4 flex flex-col gap-2">
-          {/* All content list */}
           {(currentEntry as FolderEntry).children.map((childrenId) => {
             if (getById(childrenId).type === EntryType.FOLDER) {
-              return <Folder folderId={childrenId} />;
+              return <Folder key={childrenId} folderId={childrenId} />;
             }
-            return <URL urlId={childrenId} />;
+            return <URL key={childrenId} urlId={childrenId} />;
           })}
         </div>
       </div>
@@ -78,9 +106,8 @@ const OpenRoute = () => {
 
   return (
     <div className="w-full">
-      {/* {currentOpenedLink} */}
       <Search />
-      {isLoading || !currentEntry ? <Loading /> : renderPage()}
+      {isLoading || !currentEntry || isMutating ? <Loading /> : renderPage()}
     </div>
   );
 };

@@ -4,6 +4,8 @@ import { EntryType, type LinkDataHook } from '../common/types/linkData.type';
 export const LinkHubContext = createContext<LinkDataHook>({
   allLinkData: {},
   currentOpenedLink: undefined,
+  isMutating: false,
+  modalState: null,
   setInitialOpenedLink: (_arg0) => {},
   getById: (_arg0) => {
     return {
@@ -14,6 +16,11 @@ export const LinkHubContext = createContext<LinkDataHook>({
       children: [],
     };
   },
+  createEntry: async () => {},
+  updateEntry: async () => {},
+  openCreateModal: () => {},
+  openEditModal: () => {},
+  closeModal: () => {},
 });
 
 export function useLinkHubData() {
