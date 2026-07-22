@@ -58,8 +58,69 @@ export function useLinkData(): LinkDataHook {
     });
   };
 
+  const openDeleteModal = (entryId: string) => {
+    const entry = allLinkData[entryId];
+    if (!entry) {
+      return;
+    }
+
+    setModalState({
+      isOpen: true,
+      mode: 'delete',
+      entryId,
+      parentId: entry.parentId,
+      entryType: entry.type,
+    });
+  };
+
   const closeModal = () => {
     setModalState(null);
+  };
+
+  const deleteEntry = async (entryId: string) => {
+    setIsMutating(true);
+    try {
+      setAllLinkData((prevEntries) => {
+        const entries = { ...prevEntries };
+        const queue = [entryId];
+        const deletedIds = new Set<string>();
+
+        while (queue.length) {
+          const currentId = queue.shift()!;
+          const currentEntry = entries[currentId];
+          if (!currentEntry || deletedIds.has(currentId)) {
+            continue;
+          }
+          deletedIds.add(currentId);
+
+          if (currentEntry.type === EntryType.FOLDER) {
+            queue.push(...currentEntry.children);
+          }
+
+          delete entries[currentId];
+        }
+
+        const parentId = prevEntries[entryId]?.parentId;
+        if (parentId) {
+          const parentEntry = entries[parentId];
+          if (parentEntry?.type === EntryType.FOLDER) {
+            entries[parentId] = {
+              ...parentEntry,
+              children: parentEntry.children.filter((childId) => !deletedIds.has(childId)),
+            } as FolderEntry;
+          }
+        }
+
+        return entries;
+      });
+
+      if (currentOpenedLink && currentOpenedLink === entryId) {
+        setCurrentOpenedLink('root');
+      }
+      closeModal();
+    } finally {
+      setIsMutating(false);
+    }
   };
 
   const createEntry = async (payload: CreateEntryPayload) => {
@@ -151,8 +212,10 @@ export function useLinkData(): LinkDataHook {
     setInitialOpenedLink,
     createEntry,
     updateEntry,
+    deleteEntry,
     openCreateModal,
     openEditModal,
+    openDeleteModal,
     closeModal,
   };
 }

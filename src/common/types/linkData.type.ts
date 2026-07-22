@@ -25,7 +25,7 @@ export type Entry = FolderEntry | UrlEntry;
 
 export interface ModalState {
   isOpen: boolean;
-  mode: 'create' | 'edit';
+  mode: 'create' | 'edit' | 'delete';
   entryId?: string;
   parentId: string | null;
   entryType: EntryType;
@@ -55,7 +55,9 @@ export interface LinkDataHook {
   getById: (id: string) => Entry;
   createEntry: (payload: CreateEntryPayload) => Promise<void>;
   updateEntry: (payload: UpdateEntryPayload) => Promise<void>;
+  deleteEntry: (entryId: string) => Promise<void>;
   openCreateModal: (parentId: string | null) => void;
   openEditModal: (entryId: string) => void;
+  openDeleteModal: (entryId: string) => void;
   closeModal: () => void;
 }

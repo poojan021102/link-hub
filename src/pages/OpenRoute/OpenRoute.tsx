@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import { FaFolder } from 'react-icons/fa';
 import { IoIosArrowBack, IoMdHome } from 'react-icons/io';
 import { useNavigate, useSearchParams } from 'react-router';
@@ -11,25 +11,41 @@ import URL from './components/URL';
 
 const OpenRoute = () => {
   const { currentOpenedLink, getById, isMutating } = useLinkHubData();
-  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchParam] = useSearchParams();
-  const [currentEntry, setCurrentEntry] = useState<Entry | null>();
   const navigate = useNavigate();
+  const currentEntry: Entry | null = (() => {
+    if (!currentOpenedLink) {
+      return null;
+    }
+    const entry = getById(currentOpenedLink);
+    if (!entry || entry.type === EntryType.URL) {
+      return null;
+    }
+    return entry;
+  })();
 
   useEffect(() => {
-    const currentFetchedEntry = getById(currentOpenedLink!);
-    setIsLoading(true);
-    setCurrentEntry(null);
-    if (currentFetchedEntry.type === EntryType.URL) {
-      navigate(`/${currentFetchedEntry.parentId}`);
-    } else {
-      setCurrentEntry(currentFetchedEntry);
+    if (!currentOpenedLink) {
+      return;
     }
-    setIsLoading(false);
-  }, [searchParam, currentOpenedLink, isMutating]);
 
-  const breadcrumbEntries = useMemo(() => {
-    const segments: Array<{ id: string; name: string }> = [];
+    const currentFetchedEntry = getById(currentOpenedLink);
+    if (!currentFetchedEntry) {
+      navigate('/root');
+      return;
+    }
+
+    if (currentFetchedEntry.type === EntryType.URL) {
+      if (currentFetchedEntry.parentId) {
+        navigate(`/${currentFetchedEntry.parentId}`);
+      } else {
+        navigate('/root');
+      }
+    }
+  }, [searchParam, currentOpenedLink, isMutating, getById, navigate]);
+
+  const breadcrumbEntries: Array<{ id: string; name: string }> = [];
+  {
     let currentId = currentEntry?.id ?? currentOpenedLink ?? 'root';
 
     while (currentId) {
@@ -38,12 +54,10 @@ const OpenRoute = () => {
         break;
       }
 
-      segments.unshift({ id: entry.id, name: entry.name });
+      breadcrumbEntries.unshift({ id: entry.id, name: entry.name });
       currentId = entry.parentId ?? '';
     }
-
-    return segments;
-  }, [currentEntry?.id, currentOpenedLink, getById]);
+  }
 
   const renderActionButtons = () => {
     return (
@@ -95,12 +109,15 @@ const OpenRoute = () => {
         </div>
 
         <div className="mt-2 ml-4 flex flex-col gap-2">
-          {(currentEntry as FolderEntry).children.map((childrenId) => {
-            if (getById(childrenId).type === EntryType.FOLDER) {
-              return <Folder key={childrenId} folderId={childrenId} />;
-            }
-            return <URL key={childrenId} urlId={childrenId} />;
-          })}
+          {(currentEntry as FolderEntry)?.children
+            .map((childId) => getById(childId))
+            .filter((entry): entry is Entry => Boolean(entry))
+            .map((entry) => {
+              if (entry.type === EntryType.FOLDER) {
+                return <Folder key={entry.id} folderId={entry.id} />;
+              }
+              return <URL key={entry.id} urlId={entry.id} />;
+            })}
         </div>
       </div>
     );
@@ -109,7 +126,7 @@ const OpenRoute = () => {
   return (
     <div className="w-full">
       <Search />
-      {isLoading || !currentEntry || isMutating ? <Loading /> : renderPage()}
+      {!currentEntry || isMutating ? <Loading /> : renderPage()}
     </div>
   );
 };

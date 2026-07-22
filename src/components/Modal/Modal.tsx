@@ -8,8 +8,15 @@ import {
 import { useLinkHubData } from '../../hooks/useLinkHubData';
 
 const Modal = () => {
-  const { modalState, closeModal, createEntry, updateEntry, getById, currentOpenedLink } =
-    useLinkHubData();
+  const {
+    modalState,
+    closeModal,
+    createEntry,
+    updateEntry,
+    deleteEntry,
+    getById,
+    currentOpenedLink,
+  } = useLinkHubData();
   const [entryType, setEntryType] = useState<EntryType>(EntryType.FOLDER);
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
@@ -37,6 +44,10 @@ const Modal = () => {
       return;
     }
 
+    if (modalState?.mode === 'delete') {
+      return;
+    }
+
     setEntryType(modalState?.entryType ?? EntryType.FOLDER);
   }, [getById, isOpen, modalState]);
 
@@ -59,6 +70,11 @@ const Modal = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if (modalState?.mode === 'delete' && modalState.entryId) {
+      await deleteEntry(modalState.entryId);
+      return;
+    }
 
     const normalizedName = name.trim();
     const normalizedUrl = url.trim();
@@ -119,12 +135,18 @@ const Modal = () => {
         <div className="mb-4 flex items-start justify-between">
           <div>
             <h3 className="text-lg font-semibold text-[#0f172a]">
-              {modalState.mode === 'edit' ? 'Edit item' : 'Add new item'}
+              {modalState.mode === 'delete'
+                ? 'Confirm deletion'
+                : modalState.mode === 'edit'
+                  ? 'Edit item'
+                  : 'Add new item'}
             </h3>
             <p className="mt-1 text-sm text-[#64748b]">
-              {modalState.mode === 'edit'
-                ? 'Update the selected entry.'
-                : 'Create a folder or URL inside the current location.'}
+              {modalState.mode === 'delete'
+                ? 'Deleting this entry will remove all of its children.'
+                : modalState.mode === 'edit'
+                  ? 'Update the selected entry.'
+                  : 'Create a folder or URL inside the current location.'}
             </p>
           </div>
           <button
@@ -154,58 +176,69 @@ const Modal = () => {
           </div>
         </div>
 
-        <div className="mb-4 flex rounded-lg border border-[#e0e0ec] bg-[#f8fafc] p-1">
-          <button
-            type="button"
-            disabled={modalState.mode === 'edit'}
-            onClick={() => setEntryType(EntryType.FOLDER)}
-            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed ${entryType === EntryType.FOLDER ? 'bg-primary text-white shadow-sm' : 'text-[#475569] hover:bg-[#e2e8f0]'}`}
-          >
-            <FaFolder /> Folder
-          </button>
-          <button
-            type="button"
-            disabled={modalState.mode === 'edit'}
-            onClick={() => setEntryType(EntryType.URL)}
-            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed ${entryType === EntryType.URL ? 'bg-primary text-white shadow-sm' : 'text-[#475569] hover:bg-[#e2e8f0]'}`}
-          >
-            <FaLink /> URL
-          </button>
-        </div>
+        {modalState.mode !== 'delete' ? (
+          <div className="mb-4 flex rounded-lg border border-[#e0e0ec] bg-[#f8fafc] p-1">
+            <button
+              type="button"
+              disabled={modalState.mode === 'edit'}
+              onClick={() => setEntryType(EntryType.FOLDER)}
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed ${entryType === EntryType.FOLDER ? 'bg-primary text-white shadow-sm' : 'text-[#475569] hover:bg-[#e2e8f0]'}`}
+            >
+              <FaFolder /> Folder
+            </button>
+            <button
+              type="button"
+              disabled={modalState.mode === 'edit'}
+              onClick={() => setEntryType(EntryType.URL)}
+              className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed ${entryType === EntryType.URL ? 'bg-primary text-white shadow-sm' : 'text-[#475569] hover:bg-[#e2e8f0]'}`}
+            >
+              <FaLink /> URL
+            </button>
+          </div>
+        ) : null}
 
         <form className="space-y-3" onSubmit={handleSubmit}>
-          <label className="flex flex-col gap-1 text-sm text-[#334155]">
-            <span>Name</span>
-            <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="focus:border- rounded-md border border-[#cbd5e1] px-3 py-2 ring-0 outline-none"
-              placeholder={entryType === EntryType.FOLDER ? 'Folder name' : 'Link name'}
-            />
-          </label>
-
-          {entryType === EntryType.URL ? (
+          {modalState.mode !== 'delete' ? (
             <>
               <label className="flex flex-col gap-1 text-sm text-[#334155]">
-                <span>URL</span>
+                <span>Name</span>
                 <input
-                  value={url}
-                  onChange={(event) => setUrl(event.target.value)}
-                  className="focus:border- rounded-md border border-[#cbd5e1] px-3 py-2 outline-none"
-                  placeholder="https://example.com"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  className="focus:border- rounded-md border border-[#cbd5e1] px-3 py-2 ring-0 outline-none"
+                  placeholder={entryType === EntryType.FOLDER ? 'Folder name' : 'Link name'}
                 />
               </label>
-              <label className="flex flex-col gap-1 text-sm text-[#334155]">
-                <span>Description</span>
-                <textarea
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                  className="focus:border- min-h-20 rounded-md border border-[#cbd5e1] px-3 py-2 outline-none"
-                  placeholder="Optional notes"
-                />
-              </label>
+
+              {entryType === EntryType.URL ? (
+                <>
+                  <label className="flex flex-col gap-1 text-sm text-[#334155]">
+                    <span>URL</span>
+                    <input
+                      value={url}
+                      onChange={(event) => setUrl(event.target.value)}
+                      className="focus:border- rounded-md border border-[#cbd5e1] px-3 py-2 outline-none"
+                      placeholder="https://example.com"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm text-[#334155]">
+                    <span>Description</span>
+                    <textarea
+                      value={description}
+                      onChange={(event) => setDescription(event.target.value)}
+                      className="focus:border- min-h-20 rounded-md border border-[#cbd5e1] px-3 py-2 outline-none"
+                      placeholder="Optional notes"
+                    />
+                  </label>
+                </>
+              ) : null}
             </>
-          ) : null}
+          ) : (
+            <div className="rounded-md border border-[#fee2e2] bg-[#fff1f2] p-4 text-sm text-[#991b1b]">
+              This action cannot be undone. It will remove the selected item and all of its
+              children.
+            </div>
+          )}
 
           {error ? <p className="text-sm text-[#dc2626]">{error}</p> : null}
 
@@ -221,7 +254,11 @@ const Modal = () => {
               type="submit"
               className="bg-primary cursor-pointer rounded-md px-3 py-2 text-sm font-medium text-white transition hover:bg-[#1d4ed8]"
             >
-              {modalState.mode === 'edit' ? 'Save changes' : 'Create'}
+              {modalState.mode === 'edit'
+                ? 'Save changes'
+                : modalState.mode === 'delete'
+                  ? 'Delete'
+                  : 'Create'}
             </button>
           </div>
         </form>
