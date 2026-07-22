@@ -130,7 +130,7 @@ const Modal = () => {
           <button
             type="button"
             onClick={closeModal}
-            className="rounded-full p-2 text-[#64748b] transition hover:bg-[#f1f5f9] hover:text-[#0f172a]"
+            className="cursor-pointer rounded-full p-2 text-[#64748b] transition hover:bg-[#f1f5f9] hover:text-[#0f172a]"
           >
             <FaTimes />
           </button>
@@ -157,15 +157,17 @@ const Modal = () => {
         <div className="mb-4 flex rounded-lg border border-[#e0e0ec] bg-[#f8fafc] p-1">
           <button
             type="button"
+            disabled={modalState.mode === 'edit'}
             onClick={() => setEntryType(EntryType.FOLDER)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${entryType === EntryType.FOLDER ? 'bg-[#2563eb] text-white shadow-sm' : 'text-[#475569] hover:bg-[#e2e8f0]'}`}
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed ${entryType === EntryType.FOLDER ? 'bg-primary text-white shadow-sm' : 'text-[#475569] hover:bg-[#e2e8f0]'}`}
           >
             <FaFolder /> Folder
           </button>
           <button
             type="button"
+            disabled={modalState.mode === 'edit'}
             onClick={() => setEntryType(EntryType.URL)}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${entryType === EntryType.URL ? 'bg-[#2563eb] text-white shadow-sm' : 'text-[#475569] hover:bg-[#e2e8f0]'}`}
+            className={`flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition disabled:cursor-not-allowed ${entryType === EntryType.URL ? 'bg-primary text-white shadow-sm' : 'text-[#475569] hover:bg-[#e2e8f0]'}`}
           >
             <FaLink /> URL
           </button>
@@ -177,7 +179,7 @@ const Modal = () => {
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              className="rounded-md border border-[#cbd5e1] px-3 py-2 ring-0 outline-none focus:border-[#2563eb]"
+              className="focus:border- rounded-md border border-[#cbd5e1] px-3 py-2 ring-0 outline-none"
               placeholder={entryType === EntryType.FOLDER ? 'Folder name' : 'Link name'}
             />
           </label>
@@ -189,7 +191,7 @@ const Modal = () => {
                 <input
                   value={url}
                   onChange={(event) => setUrl(event.target.value)}
-                  className="rounded-md border border-[#cbd5e1] px-3 py-2 outline-none focus:border-[#2563eb]"
+                  className="focus:border- rounded-md border border-[#cbd5e1] px-3 py-2 outline-none"
                   placeholder="https://example.com"
                 />
               </label>
@@ -198,7 +200,7 @@ const Modal = () => {
                 <textarea
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
-                  className="min-h-20 rounded-md border border-[#cbd5e1] px-3 py-2 outline-none focus:border-[#2563eb]"
+                  className="focus:border- min-h-20 rounded-md border border-[#cbd5e1] px-3 py-2 outline-none"
                   placeholder="Optional notes"
                 />
               </label>
@@ -211,13 +213,13 @@ const Modal = () => {
             <button
               type="button"
               onClick={closeModal}
-              className="rounded-md border border-[#cbd5e1] px-3 py-2 text-sm font-medium text-[#334155] transition hover:bg-[#f8fafc]"
+              className="cursor-pointer rounded-md border border-[#cbd5e1] px-3 py-2 text-sm font-medium text-[#334155] transition hover:bg-[#f8fafc]"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="rounded-md bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#1d4ed8]"
+              className="bg-primary cursor-pointer rounded-md px-3 py-2 text-sm font-medium text-white transition hover:bg-[#1d4ed8]"
             >
               {modalState.mode === 'edit' ? 'Save changes' : 'Create'}
             </button>

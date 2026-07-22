@@ -29,7 +29,7 @@ const URL = ({ urlId }: { urlId: string }) => {
             event.stopPropagation();
             openEditModal(urlId);
           }}
-          className="hover:text-primary rounded-full p-2 text-[#64748b] opacity-0 transition group-hover:opacity-100 hover:bg-[#e2e8f0]"
+          className="hover:text-primary cursor-pointer rounded-full p-2 text-[#64748b] opacity-0 transition group-hover:opacity-100 hover:bg-[#e2e8f0]"
           aria-label={`Edit ${url.name}`}
         >
           <FaEdit />

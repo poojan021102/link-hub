@@ -22,7 +22,7 @@ const Folder = ({ folderId }: { folderId: string }) => {
           event.stopPropagation();
           openEditModal(folderId);
         }}
-        className="rounded-full p-2 text-[#64748b] opacity-0 transition group-hover:opacity-100 hover:bg-[#e2e8f0] hover:text-[#2563eb]"
+        className="hover:text-primary cursor-pointer rounded-full p-2 text-[#64748b] opacity-0 transition group-hover:opacity-100 hover:bg-[#e2e8f0]"
         aria-label={`Edit ${folder.name}`}
       >
         <FaEdit />

@@ -11,7 +11,7 @@ const Navbar = () => {
       <button
         type="button"
         onClick={() => openCreateModal(currentOpenedLink ?? 'root')}
-        className="flex h-10 w-10 items-center justify-center rounded-md bg-[#2563eb] text-white transition hover:bg-[#1d4ed8]"
+        className="bg-primary flex h-10 w-10 cursor-pointer items-center justify-center rounded-md text-white transition hover:bg-[#1d4ed8]"
         aria-label="Add new entry"
       >
         <FaPlus />

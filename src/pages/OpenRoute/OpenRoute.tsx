@@ -26,7 +26,7 @@ const OpenRoute = () => {
       setCurrentEntry(currentFetchedEntry);
     }
     setIsLoading(false);
-  }, [searchParam, currentOpenedLink]);
+  }, [searchParam, currentOpenedLink, isMutating]);
 
   const breadcrumbEntries = useMemo(() => {
     const segments: Array<{ id: string; name: string }> = [];
@@ -47,7 +47,7 @@ const OpenRoute = () => {
 
   const renderActionButtons = () => {
     return (
-      <div className="mb-4 mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 mb-4 flex flex-wrap gap-2">
         <button
           disabled={!currentEntry?.parentId}
           onClick={() => navigate(`/${currentEntry?.parentId}`)}
@@ -73,7 +73,9 @@ const OpenRoute = () => {
       <div className="mt-2">
         {renderActionButtons()}
         <div className="mt-2 rounded-md border border-[#e0e0ec] bg-[#f8fafc] p-3">
-          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[#64748b]">Current folder</div>
+          <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[#64748b]">
+            Current folder
+          </div>
           <div className="bg-primary-light text-primary flex flex-wrap items-center gap-2 rounded-md p-3">
             <FaFolder size="20" />
             <div className="flex flex-wrap items-center gap-1">
@@ -82,7 +84,7 @@ const OpenRoute = () => {
                   key={entry.id}
                   type="button"
                   onClick={() => navigate(`/${entry.id}`)}
-                  className="rounded-sm px-1 py-0.5 text-left text-sm font-medium hover:bg-white/70"
+                  className="cursor-pointer rounded-sm px-1 py-0.5 text-left text-sm font-medium hover:bg-white/70"
                 >
                   {index > 0 ? <span className="mr-1 text-[#64748b]">/</span> : null}
                   {entry.name}
