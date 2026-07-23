@@ -1,4 +1,5 @@
 import { FaEdit, FaFolder } from 'react-icons/fa';
+import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router';
 import type { FolderEntry } from '../../../common/types/linkData.type';
 import { useLinkHubData } from '../../../hooks/useLinkHubData';
@@ -23,7 +24,7 @@ const Folder = ({ folderId }: { folderId: string }) => {
             event.stopPropagation();
             openEditModal(folderId);
           }}
-          className="rounded-full p-2 text-[#64748b] transition hover:bg-[#e2e8f0] hover:text-primary"
+          className="hover:text-primary cursor-pointer rounded-full p-2 text-[#64748b] transition hover:bg-[#e2e8f0]"
           aria-label={`Edit ${folder.name}`}
         >
           <FaEdit />
@@ -34,10 +35,10 @@ const Folder = ({ folderId }: { folderId: string }) => {
             event.stopPropagation();
             openDeleteModal(folderId);
           }}
-          className="rounded-full p-2 text-[#ef4444] transition hover:bg-[#fee2e2] hover:text-[#b91c1c]"
+          className="cursor-pointer rounded-full p-2 text-[#ef4444] transition hover:bg-[#fee2e2] hover:text-[#b91c1c]"
           aria-label={`Delete ${folder.name}`}
         >
-          <span className="text-base font-semibold">×</span>
+          <MdDelete />
         </button>
       </div>
     </div>

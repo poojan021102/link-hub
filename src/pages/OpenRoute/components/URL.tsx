@@ -1,5 +1,6 @@
 import { FaEdit, FaLink } from 'react-icons/fa';
 import { ImNewTab } from 'react-icons/im';
+import { MdDelete } from 'react-icons/md';
 import type { UrlEntry } from '../../../common/types/linkData.type';
 import { useLinkHubData } from '../../../hooks/useLinkHubData';
 
@@ -29,7 +30,7 @@ const URL = ({ urlId }: { urlId: string }) => {
             event.stopPropagation();
             openEditModal(urlId);
           }}
-          className="rounded-full p-2 text-[#64748b] transition hover:bg-[#e2e8f0] hover:text-primary"
+          className="hover:text-primary cursor-pointer rounded-full p-2 text-[#64748b] transition hover:bg-[#e2e8f0]"
           aria-label={`Edit ${url.name}`}
         >
           <FaEdit />
@@ -40,10 +41,10 @@ const URL = ({ urlId }: { urlId: string }) => {
             event.stopPropagation();
             openDeleteModal(urlId);
           }}
-          className="rounded-full p-2 text-[#ef4444] transition hover:bg-[#fee2e2] hover:text-[#b91c1c]"
+          className="cursor-pointer rounded-full p-2 text-[#ef4444] transition hover:bg-[#fee2e2] hover:text-[#b91c1c]"
           aria-label={`Delete ${url.name}`}
         >
-          <span className="text-base font-semibold">×</span>
+          <MdDelete />
         </button>
         <div className="text-primary">
           <ImNewTab />

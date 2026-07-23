@@ -19,6 +19,7 @@ export const LinkHubContext = createContext<LinkDataHook>({
   createEntry: async () => {},
   updateEntry: async () => {},
   deleteEntry: async () => {},
+  searchEntries: () => [],
   openCreateModal: () => {},
   openEditModal: () => {},
   openDeleteModal: () => {},

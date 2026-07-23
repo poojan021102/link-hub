@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  EntryCategory,
   EntryType,
   type CreateEntryPayload,
   type Entry,
@@ -203,6 +204,44 @@ export function useLinkData(): LinkDataHook {
     }
   };
 
+  const searchEntries = (startFolderId: string, query: string, category: EntryCategory) => {
+    const rootEntry = allLinkData[startFolderId];
+    if (!rootEntry || rootEntry.type !== EntryType.FOLDER) {
+      return [];
+    }
+
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) {
+      return [];
+    }
+
+    const results: Entry[] = [];
+    const queue: string[] = [...rootEntry.children];
+    const searchType = category === EntryCategory.URL ? EntryType.URL : EntryType.FOLDER;
+
+    while (queue.length) {
+      const entryId = queue.shift()!;
+      const entry = allLinkData[entryId];
+      if (!entry) {
+        continue;
+      }
+
+      if (entry.type === EntryType.FOLDER) {
+        queue.push(...entry.children);
+      }
+
+      const haystack = [entry.name, entry.type === EntryType.URL ? entry.url : '']
+        .join(' ')
+        .toLowerCase();
+
+      if (entry.type === searchType && haystack.includes(normalizedQuery)) {
+        results.push(entry);
+      }
+    }
+
+    return results;
+  };
+
   return {
     allLinkData,
     getById,
@@ -213,6 +252,7 @@ export function useLinkData(): LinkDataHook {
     createEntry,
     updateEntry,
     deleteEntry,
+    searchEntries,
     openCreateModal,
     openEditModal,
     openDeleteModal,

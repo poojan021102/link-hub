@@ -3,6 +3,12 @@ export enum EntryType {
   URL = 'URL',
 }
 
+export enum EntryCategory {
+  FOLDER = 'FOLDER',
+  URL = 'URL',
+  SEARCH = 'SEARCH',
+}
+
 export interface BaseEntry {
   id: string;
   name: string;
@@ -53,6 +59,7 @@ export interface LinkDataHook {
   modalState: ModalState | null;
   setInitialOpenedLink: (arg0: string) => void;
   getById: (id: string) => Entry;
+  searchEntries: (startFolderId: string, query: string, category: EntryCategory) => Entry[];
   createEntry: (payload: CreateEntryPayload) => Promise<void>;
   updateEntry: (payload: UpdateEntryPayload) => Promise<void>;
   deleteEntry: (entryId: string) => Promise<void>;
