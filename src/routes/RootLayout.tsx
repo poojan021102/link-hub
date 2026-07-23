@@ -20,7 +20,7 @@ function RootLayout() {
     } else {
       linkHubData.setInitialOpenedLink(path);
     }
-  }, [pathname, navigate]);
+  }, [pathname, navigate, linkHubData.allLinkData, linkHubData.setInitialOpenedLink]);
 
   return (
     <LinkHubContext.Provider value={linkHubData}>

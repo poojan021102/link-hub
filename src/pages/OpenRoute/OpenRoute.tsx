@@ -16,7 +16,7 @@ import Search from './components/Search';
 import URL from './components/URL';
 
 const OpenRoute = () => {
-  const { currentOpenedLink, getById, isMutating, searchEntries } = useLinkHubData();
+  const { currentOpenedLink, getById, isMutating, modalState, searchEntries } = useLinkHubData();
   const [searchParams] = useSearchParams();
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [currentEntry, setCurrentEntry] = useState<FolderEntry | null>(null);
@@ -72,15 +72,7 @@ const OpenRoute = () => {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [
-    currentOpenedLink,
-    getById,
-    isMutating,
-    navigate,
-    searchText,
-    searchCategory,
-    isSearchActive,
-  ]);
+  }, [currentOpenedLink, isMutating, navigate, searchText, searchCategory, isSearchActive]);
 
   const breadcrumbEntries: Array<{ id: string; name: string }> = [];
   {
@@ -175,7 +167,9 @@ const OpenRoute = () => {
   return (
     <div className="w-full">
       <Search />
-      {!currentEntry || isMutating || (isSearchActive && isSearchLoading) ? (
+      {!currentEntry ||
+      (isMutating && modalState?.mode !== 'delete') ||
+      (isSearchActive && isSearchLoading) ? (
         <Loading />
       ) : (
         renderPage()

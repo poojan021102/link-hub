@@ -36,7 +36,7 @@ const Search = () => {
     const commonClass =
       'hover:text-secondary flex w-full cursor-pointer items-center justify-center rounded-sm p-2 hover:bg-blue-300 ';
     return (
-      <div className="mt-2 flex h-full w-[10%] items-center justify-around rounded-md bg-[#E7E7F3] shadow-sm">
+      <div className="mt-2 flex h-full w-[20%] items-center justify-around rounded-md bg-[#E7E7F3] shadow-sm">
         <button
           onClick={() => setSearchCategory(SearchCategory.FOLDER)}
           className={
