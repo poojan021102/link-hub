@@ -24,11 +24,11 @@ function RootLayout() {
 
   return (
     <LinkHubContext.Provider value={linkHubData}>
-      <div className="h-full w-full">
+      <div className="h-full w-full overflow-auto">
         <Navbar />
         <Modal />
         {linkHubData.currentOpenedLink ? (
-          <div className="h-full w-full p-2 pt-13">
+          <div className="w-full p-2 pt-13">
             <Outlet />
           </div>
         ) : (

@@ -62,7 +62,7 @@ const Search = () => {
   };
 
   return (
-    <div className="mt-4 w-full">
+    <div className="sticky top-12 z-0 w-full bg-[#F6F6F7] pt-4 opacity-100">
       <div className="flex min-h-10 items-center justify-between gap-2 rounded-md border-[1.5px] border-gray-400 px-2 shadow-sm">
         <CiSearch size="20" className="font-bold" />
         <input

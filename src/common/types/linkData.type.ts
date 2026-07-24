@@ -60,6 +60,8 @@ export interface LinkDataHook {
   setInitialOpenedLink: (arg0: string) => void;
   getById: (id: string) => Entry;
   searchEntries: (startFolderId: string, query: string, category: EntryCategory) => Entry[];
+  exportData: () => void;
+  importData: (rawData: unknown) => Promise<void>;
   createEntry: (payload: CreateEntryPayload) => Promise<void>;
   updateEntry: (payload: UpdateEntryPayload) => Promise<void>;
   deleteEntry: (entryId: string) => Promise<void>;

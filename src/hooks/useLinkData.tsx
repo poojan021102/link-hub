@@ -12,7 +12,137 @@ import {
   type UpdateEntryPayload,
 } from '../common/types/linkData.type';
 
-// const delay = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const normalizeImportedData = (raw: unknown): Record<string, Entry> => {
+  if (!isRecord(raw)) {
+    throw new Error('Imported JSON must be an object.');
+  }
+
+  const entries: Record<string, Entry> = {};
+
+  for (const [key, value] of Object.entries(raw)) {
+    if (!isRecord(value)) {
+      throw new Error(`Entry ${key} must be an object.`);
+    }
+
+    const id = typeof value.id === 'string' ? value.id : key;
+    if (!id) {
+      throw new Error(`Entry ${key} must include a valid string id.`);
+    }
+
+    const name = typeof value.name === 'string' ? value.name.trim() : '';
+    if (!name) {
+      throw new Error(`Entry ${key} must include a valid name.`);
+    }
+
+    const type = value.type;
+    if (type !== EntryType.FOLDER && type !== EntryType.URL) {
+      throw new Error(`Entry ${key} has invalid type.`);
+    }
+
+    const parentId =
+      typeof value.parentId === 'string' || value.parentId === null ? value.parentId : null;
+
+    if (type === EntryType.FOLDER) {
+      const children = Array.isArray(value.children)
+        ? value.children.map((child) => {
+            if (typeof child !== 'string') {
+              throw new Error(`Folder ${id} has invalid child id.`);
+            }
+            return child;
+          })
+        : [];
+
+      entries[id] = {
+        id,
+        name,
+        type: EntryType.FOLDER,
+        parentId,
+        children,
+      };
+      continue;
+    }
+
+    if (typeof value.url !== 'string' || typeof value.description !== 'string') {
+      throw new Error(`URL entry ${id} must include url and description strings.`);
+    }
+
+    entries[id] = {
+      id,
+      name,
+      type: EntryType.URL,
+      parentId,
+      url: value.url,
+      description: value.description,
+    };
+  }
+
+  return entries;
+};
+
+const remapImportedEntries = (
+  existingEntries: Record<string, Entry>,
+  importedEntries: Record<string, Entry>,
+): Record<string, Entry> => {
+  const nextEntries = { ...existingEntries };
+  const idMap = new Map<string, string>();
+
+  const existingIds = new Set(Object.keys(existingEntries));
+
+  for (const importId of Object.keys(importedEntries)) {
+    const targetId = existingIds.has(importId) ? createUniqueId(nextEntries) : importId;
+    idMap.set(importId, targetId);
+  }
+
+  for (const [importId, entry] of Object.entries(importedEntries)) {
+    if (importId === 'root') {
+      continue;
+    }
+
+    const targetId = idMap.get(importId)!;
+    const remappedParentId =
+      entry.parentId === null
+        ? null
+        : (idMap.get(entry.parentId) ??
+          (existingIds.has(entry.parentId) ? entry.parentId : 'root'));
+
+    if (entry.type === EntryType.FOLDER) {
+      const remappedChildren = entry.children
+        .map((childId) => idMap.get(childId) ?? childId)
+        .filter((childId) => childId !== targetId);
+
+      nextEntries[targetId] = {
+        ...entry,
+        id: targetId,
+        parentId: remappedParentId,
+        children: remappedChildren,
+      };
+      continue;
+    }
+
+    nextEntries[targetId] = {
+      ...entry,
+      id: targetId,
+      parentId: remappedParentId,
+    };
+  }
+
+  const rootEntry = nextEntries['root'] as FolderEntry;
+  if (rootEntry && rootEntry.type === EntryType.FOLDER) {
+    const rootChildren = new Set(rootEntry.children);
+    for (const entry of Object.values(nextEntries)) {
+      if (entry.id !== 'root' && entry.parentId === 'root') {
+        rootChildren.add(entry.id);
+      }
+    }
+    rootEntry.children = Array.from(rootChildren);
+    nextEntries['root'] = rootEntry;
+  }
+
+  return nextEntries;
+};
 
 const DEFAULT_ROOT_DATA: Record<string, Entry> = {
   root: {
@@ -326,6 +456,35 @@ export function useLinkData(
     [allLinkData],
   );
 
+  const exportData = useCallback(() => {
+    const json = JSON.stringify(allLinkData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `link-hub-data-${new Date().toISOString()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }, [allLinkData]);
+
+  const importData = useCallback(
+    async (rawData: unknown) => {
+      setIsMutating(true);
+      try {
+        const importedEntries = normalizeImportedData(rawData);
+        const mergedEntries = remapImportedEntries(allLinkData, importedEntries);
+        setAllLinkData(mergedEntries);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to import data.';
+        window.alert(`Import failed: ${message}`);
+        throw error;
+      }
+    },
+    [allLinkData],
+  );
+
   return {
     allLinkData,
     getById,
@@ -337,6 +496,8 @@ export function useLinkData(
     updateEntry,
     deleteEntry,
     searchEntries,
+    exportData,
+    importData,
     openCreateModal,
     openEditModal,
     openDeleteModal,

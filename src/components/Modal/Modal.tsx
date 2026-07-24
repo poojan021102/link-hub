@@ -130,7 +130,7 @@ const Modal = () => {
       <div onClick={closeModal} className="absolute inset-0" aria-hidden="true" />
       <div
         onClick={(event) => event.stopPropagation()}
-        className="relative z-10 w-full max-w-lg rounded-xl border border-[#e0e0ec] bg-white p-5 shadow-xl"
+        className="relative z-10 max-h-[calc(100vh-2rem)] min-h-0 max-w-[calc(100vw-2rem)] min-w-0 overflow-auto rounded-xl border border-[#e0e0ec] bg-white p-5 shadow-xl"
       >
         <div className="mb-4 flex items-start justify-between">
           <div>

@@ -11,11 +11,16 @@ const Folder = ({ folderId }: { folderId: string }) => {
 
   return (
     <div className="group hover:bg-primary-light flex cursor-pointer items-center justify-between rounded-md bg-white p-3 shadow-sm hover:shadow-md">
-      <div onClick={() => navigate(`/${folderId}`)} className="flex flex-1 items-center gap-2">
+      <div
+        onClick={() => navigate(`/${folderId}`)}
+        className="flex min-w-0 flex-1 items-center gap-2"
+      >
         <div className="text-primary">
           <FaFolder size="20" />
         </div>
-        <div>{folder.name}</div>
+        <div className="min-w-0 overflow-hidden">
+          <div className="truncate">{folder.name}</div>
+        </div>
       </div>
       <div className="flex items-center gap-2 opacity-0 transition group-hover:opacity-100">
         <button

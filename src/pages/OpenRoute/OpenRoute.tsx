@@ -114,7 +114,7 @@ const OpenRoute = () => {
 
   const renderPage = () => {
     return (
-      <div className="mt-2">
+      <div className="mt-2 max-h-full w-full">
         {renderActionButtons()}
         <div className="mt-2 rounded-md border border-[#e0e0ec] bg-[#f8fafc] p-3">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[#64748b]">
@@ -126,28 +126,29 @@ const OpenRoute = () => {
             ) : (
               <FaFolder size="20" />
             )}
-            <div className="flex flex-wrap items-center gap-1">
+            <div className="flex min-w-0 flex-wrap items-center gap-1 overflow-hidden">
               {breadcrumbEntries.map((entry, index) => (
                 <button
                   key={entry.id}
                   type="button"
                   onClick={() => navigate(`/${entry.id}`)}
-                  className="cursor-pointer rounded-sm px-1 py-0.5 text-left text-sm font-medium hover:bg-white/70"
+                  className="flex min-w-0 cursor-pointer rounded-sm px-1 py-0.5 text-left text-sm font-medium hover:bg-white/70"
                 >
                   {index > 0 ? <span className="mr-1 text-[#64748b]">/</span> : null}
-                  {entry.name}
+                  <span className="min-w-0 truncate overflow-hidden">{entry.name}</span>
                 </button>
               ))}
               {currentEntryCategory === EntryCategory.SEARCH ? (
-                <span className="flex items-center gap-1 rounded-sm bg-[#e2e8ff] px-2 py-0.5 text-sm font-semibold text-[#1d4ed8]">
-                  <span className="text-[#64748b]">/</span> {searchText}
+                <span className="flex min-w-0 items-center gap-1 rounded-sm bg-[#e2e8ff] px-2 py-0.5 text-sm font-semibold text-[#1d4ed8]">
+                  <span className="text-[#64748b]">/</span>
+                  <span className="min-w-0 truncate overflow-hidden">{searchText}</span>
                 </span>
               ) : null}
             </div>
           </div>
         </div>
 
-        <div className="mt-2 ml-4 flex flex-col gap-2">
+        <div className="my-2 flex w-full flex-col gap-2 pl-4">
           {(isSearchActive
             ? searchResults
             : (currentEntry?.children

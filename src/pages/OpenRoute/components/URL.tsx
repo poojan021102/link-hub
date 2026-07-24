@@ -13,14 +13,14 @@ const URL = ({ urlId }: { urlId: string }) => {
       <a
         href={url.url}
         target="__blank__"
-        className="flex flex-1 items-center gap-2"
+        className="flex min-w-0 flex-1 items-center gap-2"
         rel="noreferrer"
       >
         <div className="text-primary">
           <FaLink size="20" />
         </div>
-        <div>
-          <div>{url.name}</div>
+        <div className="min-w-0 overflow-hidden">
+          <div className="truncate">{url.name}</div>
         </div>
       </a>
       <div className="flex items-center gap-2 opacity-0 transition group-hover:opacity-100">
